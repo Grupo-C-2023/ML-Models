@@ -15,7 +15,8 @@ def app():
     st.title('Modelo SVC')
     st.write("""Funcionamiento del modelo SVC""")
 
-    start_date = st.text_input('Fecha de inicio', '2015-01-01')
+    start_date = st.date_input('Fecha de inicio', value=pd.to_datetime('2015-01-01'))
+    st.write('El modelo se entrenará desde la fecha: ', start_date)
 
     # Set start and end dates for the price data
     # Establecer fechas de inicio y finalización para los datos de precios
