@@ -6,16 +6,16 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
 import streamlit as st
+from matplotlib.pylab import rcParams
+from sklearn.preprocessing import MinMaxScaler
 
 def app():
     plt.style.use('fivethirtyeight')
 
-    # Setting figure size
-    from matplotlib.pylab import rcParams
+    # Setting figure size  
     rcParams['figure.figsize'] = 20, 10
 
     #for normalizing data
-    from sklearn.preprocessing import MinMaxScaler
     scaler = MinMaxScaler(feature_range=(0, 1))
 
     # Fetching data from Yahoo Finance
