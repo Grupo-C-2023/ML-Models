@@ -15,8 +15,9 @@ def app():
     st.write("Este es un ejemplo de análisis de series de tiempo utilizando LSTM (Long Short-Term Memory) en Streamlit.")
 
     # Set start and end dates for the price data
-    start_date = '2018-01-01'
-    end_date = '2022-12-31'
+    start_date = st.date_input('Start Train' , value=pd.to_datetime('2018-1-1'))
+    end_date = st.date_input('End Train' , value=pd.to_datetime('today'))
+
 
     # Retrieve the Bitcoin price data from Yahoo Finance
     i01_BTC_USD = yf.download('BTC-USD', start=start_date, end=end_date)
