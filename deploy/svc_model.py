@@ -1,28 +1,34 @@
-import yfinance as yf
 import streamlit as st
+
+# Machine learning
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
+
+# To ignore warnings
 import warnings
+
+# For data manipulation
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 
+# To plot
+import matplotlib.pyplot as plt
 plt.style.use('seaborn-darkgrid')
 
 warnings.filterwarnings("ignore")
 
+
 def app():
     st.title('Modelo SVC')
-    st.write("""Funcionamiento del modelo SVC""")
 
-    start_date = st.date_input('Fecha de inicio', value=pd.to_datetime('2015-01-01'))
-    st.write('El modelo se entrenará desde la fecha: ', start_date)
-
+    start_date = '2015-01-01'
     # Set start and end dates for the price data
     # Establecer fechas de inicio y finalización para los datos de precios
     end_date = pd.Timestamp.today().strftime('%Y-%m-%d')
 
+    import yfinance as yf
     df = yf.download('BTC-USD', start=start_date, end=end_date)
+    df
 
     # Changes The Date column as index columns
     # df.index = pd.to_datetime(df['Date'])
@@ -40,6 +46,7 @@ def app():
 
     # Target variables
     y = np.where(df['Close'].shift(-1) > df['Close'], 1, 0)
+    y
 
     split_percentage = 0.8
     split = int(split_percentage*len(df))
@@ -56,12 +63,15 @@ def app():
     cls = SVC().fit(X_train, y_train)
 
     df['Predicted_Signal'] = cls.predict(X)
+    df['Predicted_Signal']
 
     # Calculate daily returns
     df['Return'] = df.Close.pct_change()
+    df['Return']
 
     # Calculate strategy returns
     df['Strategy_Return'] = df.Return * df.Predicted_Signal.shift(1)
+    df['Strategy_Return']
 
     # Calculate Cumulutive returns
     df['Cum_Ret'] = df['Return'].cumsum()
@@ -71,7 +81,5 @@ def app():
     df['Cum_Strategy'] = df['Strategy_Return'].cumsum()
     df
 
-    fig = plt.figure()
     plt.plot(df['Cum_Ret'], color='red')
     plt.plot(df['Cum_Strategy'], color='blue')
-    st.pyplot(fig)

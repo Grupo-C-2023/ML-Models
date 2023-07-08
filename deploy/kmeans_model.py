@@ -79,5 +79,6 @@ def app():
     # Display model architecture diagram
     st.subheader("Arquitectura del modelo LSTM")
     graph = model_to_dot(model, show_shapes=True, show_dtype=False, show_layer_names=True, rankdir="TB",
-                         expand_nested=False, dpi=70, subgraph=False).create(prog='dot', format='svg')
+                     expand_nested=False, dpi=70, subgraph=False).create(prog='dot', format='png')
+
     st.image(graph)
