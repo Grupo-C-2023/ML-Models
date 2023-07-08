@@ -19,67 +19,81 @@ warnings.filterwarnings("ignore")
 
 
 def app():
-    st.title('Modelo SVC')
-
-    start_date = '2015-01-01'
-    # Set start and end dates for the price data
-    # Establecer fechas de inicio y finalización para los datos de precios
-    end_date = pd.Timestamp.today().strftime('%Y-%m-%d')
 
     import yfinance as yf
+
+    st.title('Modelo SVC')
+
+    # Definir fechas de inicio y finalización para los datos de precios
+    start_date = st.date_input('Start Train' , value=pd.to_datetime('2018-1-1'))
+    end_date = st.date_input('End Train' , value=pd.to_datetime('today'))
+
+
+    # Descargar datos de precios de Bitcoin utilizando Yahoo Finance
     df = yf.download('BTC-USD', start=start_date, end=end_date)
-    df
 
-    # Changes The Date column as index columns
-    # df.index = pd.to_datetime(df['Date'])
+    st.subheader('Datos de precios de Bitcoin')
+    st.write(df)
 
-    # drop The original date column
-    # df = df.drop(['Date'], axis='columns')
-
-    # Create predictor variables
+    # Crear variables predictoras
     df['Open-Close'] = df.Open - df.Close
     df['High-Low'] = df.High - df.Low
 
-    # Store all predictor variables in a variable X
+    # Almacenar todas las variables predictoras en una variable X
     X = df[['Open-Close', 'High-Low']]
-    X.head()
+    st.subheader('Variables predictoras')
+    st.write(X.head())
 
-    # Target variables
+    # Variables objetivo
     y = np.where(df['Close'].shift(-1) > df['Close'], 1, 0)
-    y
+    st.subheader('Variables objetivo')
+    st.write(y)
 
+    # Dividir los datos en conjuntos de entrenamiento y prueba
     split_percentage = 0.8
-    split = int(split_percentage*len(df))
+    split = int(split_percentage * len(df))
 
-    # Train data set
+    # Conjunto de datos de entrenamiento
     X_train = X[:split]
     y_train = y[:split]
 
-    # Test data set
+    # Conjunto de datos de prueba
     X_test = X[split:]
     y_test = y[split:]
 
-    # Support vector classifier
+    # Crear y entrenar el clasificador de vectores de soporte
     cls = SVC().fit(X_train, y_train)
 
+    # Predecir las señales utilizando el modelo entrenado
     df['Predicted_Signal'] = cls.predict(X)
-    df['Predicted_Signal']
+    st.subheader('Señales predichas')
+    st.write(df['Predicted_Signal'])
 
-    # Calculate daily returns
+    # Calcular los rendimientos diarios
     df['Return'] = df.Close.pct_change()
-    df['Return']
+    st.subheader('Rendimientos diarios')
+    st.write(df['Return'])
 
-    # Calculate strategy returns
+    # Calcular los rendimientos de la estrategia
     df['Strategy_Return'] = df.Return * df.Predicted_Signal.shift(1)
-    df['Strategy_Return']
+    st.subheader('Rendimientos de la estrategia')
+    st.write(df['Strategy_Return'])
 
-    # Calculate Cumulutive returns
+    # Calcular los rendimientos acumulados
     df['Cum_Ret'] = df['Return'].cumsum()
-    df
+    st.subheader('Rendimientos acumulados')
+    st.write(df)
 
-    # # Plot Strategy Cumulative returns
+    # Calcular los rendimientos acumulados de la estrategia
     df['Cum_Strategy'] = df['Strategy_Return'].cumsum()
-    df
+    st.subheader('Rendimientos acumulados de la estrategia')
+    st.write(df)
 
-    plt.plot(df['Cum_Ret'], color='red')
-    plt.plot(df['Cum_Strategy'], color='blue')
+    # Graficar los rendimientos acumulados de la estrategia
+    fig = plt.figure(figsize=(16, 8))
+    plt.plot(df['Cum_Ret'], color='red', label='Rendimientos acumulados')
+    plt.plot(df['Cum_Strategy'], color='blue', label='Rendimientos acumulados de la estrategia')
+    plt.legend()
+    plt.title('Rendimientos acumulados vs. Rendimientos acumulados de la estrategia')
+    st.subheader('Gráfico de rendimientos acumulados')
+    st.pyplot(fig)
