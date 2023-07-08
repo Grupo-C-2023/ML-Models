@@ -2,10 +2,11 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
+from pandas_datareader import data as pdr
+import yfinance as yfin
 
 def app():
-    from pandas_datareader import data as pdr
-    import yfinance as yfin
+    
     yfin.pdr_override()
     st.title('Modelo Random Forest Regression')
 

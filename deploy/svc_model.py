@@ -16,12 +16,9 @@ import matplotlib.pyplot as plt
 plt.style.use('seaborn-darkgrid')
 
 warnings.filterwarnings("ignore")
-
+import yfinance as yf
 
 def app():
-
-    import yfinance as yf
-
     st.title('Modelo SVC')
 
     # Definir fechas de inicio y finalización para los datos de precios
