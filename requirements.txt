@@ -29,6 +29,7 @@ grpcio
 h5py
 idna
 importlib-metadata
+ipython
 Jinja2
 joblib
 jsonschema
