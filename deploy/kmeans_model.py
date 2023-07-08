@@ -1,84 +1,91 @@
-import matplotlib.pyplot as plt
 import pandas as pd
-import numpy as np
-from IPython.display import SVG
-from keras.utils import model_to_dot
-import streamlit as st
-import yfinance as yf
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
 from sklearn.preprocessing import MinMaxScaler
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Dropout
-from tensorflow.keras.optimizers import Adam
+from scipy.spatial import ConvexHull
+from matplotlib.patches import Polygon
+import streamlit as st
 
 def app():
-    st.title("Análisis de series de tiempo con LSTM")
-    st.write("Este es un ejemplo de análisis de series de tiempo utilizando LSTM (Long Short-Term Memory) en Streamlit.")
+    st.title("K-Means Clustering - Análisis Bidimensional")
 
-    # Set start and end dates for the price data
-    start_date = '2018-01-01'
-    end_date = '2022-12-31'
+    st.write("Este es un ejemplo de aplicación de K-Means Clustering en un análisis bidimensional utilizando Streamlit.")
 
-    # Retrieve the Bitcoin price data from Yahoo Finance
-    i01_BTC_USD = yf.download('BTC-USD', start=start_date, end=end_date)
-    i01_BTC_USD.drop('Volume', axis=1, inplace=True)
-    i01_BTC_USD.columns = ['BTC_' + column for column in i01_BTC_USD.columns]
+    pd.Timestamp.today().strftime('%Y-%m-%d %H:%M:%S') # Se capta la fecha y hora actual
 
-    # Retrieve the Ethereum price data from Yahoo Finance
-    i02_ETH_USD = yf.download('ETH-USD', start=start_date, end=end_date)
-    i02_ETH_USD.drop('Volume', axis=1, inplace=True)
-    i02_ETH_USD.columns = ['ETH_' + column for column in i02_ETH_USD.columns]
+    # Commented out IPython magic to ensure Python compatibility.
+    # # Conectando con Drive
+    # %%time
+    # from google.colab import drive
+    # drive.mount("/content/drive")
 
-    # Concatenate the DataFrames
-    df = pd.concat([i02_ETH_USD, i01_BTC_USD], axis=1)
+    # Carga del dataset
+    df = pd.read_csv('deploy/data/ClusteringBidimensional.csv')
+    st.write('Dataset:')
+    st.write(df.describe()) 
 
-    # Preprocessing
-    df['BTC_Return'] = df['BTC_Close'].pct_change()
-    df['Trend'] = np.where(df['BTC_Return'] > 0.00, 1, 0)
-
-    # Drop rows with missing values
-    df = df.dropna()
-
-    # Train-test split
-    train_size = int(len(df) * 0.8)
-    train_data = df[:train_size]
-    test_data = df[train_size:]
-
-    # Data normalization
+    # Perform MinMax normalization
     scaler = MinMaxScaler(feature_range=(0, 1))
-    scaled_train_data = scaler.fit_transform(train_data.drop(['BTC_Return'], axis=1))
-    scaled_test_data = scaler.transform(test_data.drop(['BTC_Return'], axis=1))
+    df[['Risk', 'Return']] = scaler.fit_transform(df[['Risk', 'Return']])
 
-    # Create time sequences
-    window_size = 100
+    # Commented out IPython magic to ensure Python compatibility.
+    # # Perform clustering using K-means
+    # %%time
+    num_clusters = 3
+    kmeans = KMeans(n_clusters=num_clusters)
+    kmeans.fit(df[['Risk', 'Return']])
+    st.write("Número de clusters:", num_clusters)
+    st.write("Centroides:")
+    st.write(kmeans.cluster_centers_)
+    st.write("Etiquetas de cluster asignadas a cada muestra:")
+    st.write(kmeans.labels_)
 
-    def create_sequences(data):
-        x = []
-        y = []
-        for i in range(window_size, len(data)):
-            x.append(data[i - window_size:i])
-            y.append(data[i][-1])
-        return np.array(x), np.array(y)
+    # Get the cluster labels
+    labels = kmeans.labels_
 
-    x_train, y_train = create_sequences(scaled_train_data)
-    x_test, y_test = create_sequences(scaled_test_data)
+    # Add the cluster labels to the DataFrame
+    df['Cluster_identificado'] = labels
 
-    # Build LSTM model
-    model = Sequential()
-    model.add(LSTM(units=160, return_sequences=True, input_shape=(x_train.shape[1], x_train.shape[2])))
-    model.add(LSTM(units=160))
-    model.add(Dense(units=1, activation='sigmoid'))
-    model.compile(optimizer=Adam(learning_rate=0.001), loss='binary_crossentropy', metrics=['accuracy'])
+    st.write("Dataset con etiquetas de cluster:")
+    st.write(df)
 
-    # Train the model
-    model.fit(x_train, y_train, epochs=100, batch_size=64, validation_data=(x_test, y_test), verbose=1)
+    # Get the cluster centers
+    centroids = kmeans.cluster_centers_
 
-    # Display model summary
-    st.subheader("Resumen del modelo LSTM")
-    st.text(str(model.summary()))
+    # Crea el gráfico de dispersión con los clusters
+    fig, ax = plt.subplots()
+    scatter = ax.scatter(df['Risk'], df['Return'], c=df['Cluster_identificado'], cmap='viridis')
+    ax.scatter(centroids[:, 0], centroids[:, 1], marker='o', s=200, c='red')
+    plt.xlabel('Risk')
+    plt.ylabel('Return')
+    plt.title('Clustering Result')
+    ax.legend(*scatter.legend_elements(), title='Clusters')
 
-    # Display model architecture diagram
-    st.subheader("Arquitectura del modelo LSTM")
-    graph = model_to_dot(model, show_shapes=True, show_dtype=False, show_layer_names=True, rankdir="TB",
-                     expand_nested=False, dpi=70, subgraph=False).create(prog='dot', format='png')
+    # Muestra el gráfico en la aplicación de Streamlit
+    st.write("Gráfico de dispersión con los clusters:")
+    st.pyplot(fig)
 
-    st.image(graph)
+    # Plot the geometric polygon for each cluster
+    for cluster in range(num_clusters):
+        cluster_points = df[df['Cluster_identificado'] == cluster][['Risk', 'Return']].values
+        hull = ConvexHull(cluster_points)
+        polygon = Polygon(cluster_points[hull.vertices], edgecolor='blue', linewidth=1, fill=None)
+        ax.add_patch(polygon)
+
+    # Set the labels and title
+    plt.xlabel('Risk')
+    plt.ylabel('Return')
+    plt.title('Clustering Result')
+
+    # Create a legend
+    legend_elements = scatter.legend_elements()[0]
+    legend_labels = ['Cluster {}'.format(i) for i in range(num_clusters)]
+    ax.legend(legend_elements, legend_labels, loc='upper left')
+
+    # Show the plot
+    st.write("Gráfico de dispersión con los clusters y sus polígonos:")
+    st.pyplot(fig)
+    
+    st.write("Recomendación:")
+    st.write("El análisis de clustering realizado puede ayudar a identificar diferentes grupos en función de los niveles de riesgo y rendimiento. Esta información puede ser útil para la toma de decisiones y la segmentación de clientes o inversiones.")
+
