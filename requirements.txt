@@ -1,9 +1,9 @@
 absl-py
 altair
 appdirs
-astunparse
+# astunparse
 attrs
-beautifulsoup4
+# beautifulsoup4
 blinker
 cachetools
 certifi
@@ -11,7 +11,7 @@ charset-normalizer
 click
 colorama
 commonmark
-contourpy
+# contourpy
 cycler
 decorator
 emot
@@ -26,7 +26,7 @@ google-auth
 google-auth-oauthlib
 google-pasta
 grpcio
-h5py
+# h5py
 idna
 importlib-metadata
 ipython
@@ -41,15 +41,15 @@ Markdown
 MarkupSafe
 matplotlib
 multitasking
-nltk
+# nltk
 numpy
 oauthlib
-opt-einsum
+# opt-einsum
 packaging
 pandas
 pandas-datareader
 Pillow
-plotly
+# plotly
 protobuf
 pyarrow
 pyasn1
@@ -65,41 +65,41 @@ pytz
 pytz-deprecation-shim
 regex
 requests
-requests-oauthlib
+# requests-oauthlib
 rich
-rsa
+# rsa
 scikit-learn
-scipy
-seaborn
+# scipy
+# seaborn
 semver
 six
 smmap
-snscrape @ git+https://github.com/JustAnotherArchivist/snscrape.git@cbdaee6864aa8d3e9e4326d4fe224a517aabbc2c
+# snscrape @ git+https://github.com/JustAnotherArchivist/snscrape.git@cbdaee6864aa8d3e9e4326d4fe224a517aabbc2c
 soupsieve
 streamlit
 tenacity
-tensorboard
+# tensorboard
 tensorboard-data-server
 tensorboard-plugin-wit
 tensorflow
 tensorflow-estimator
-tensorflow-intel
+# tensorflow-intel
 tensorflow-io-gcs-filesystem
 termcolor
-textblob
+# textblob
 threadpoolctl
 toml
 toolz
 tornado
-tqdm
+# tqdm
 typing_extensions
 tzdata
 tzlocal
 urllib3
 validators
 watchdog
-Werkzeug
-wordcloud
+# Werkzeug
+# wordcloud
 wrapt
 yfinance
 zipp
