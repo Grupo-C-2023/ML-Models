@@ -1,9 +1,10 @@
 # Proyecto de Modelos de Machine Learning con Streamlit
 
 Este proyecto tiene como objetivo implementar varios modelos de machine learning utilizando Streamlit para crear una interfaz interactiva y visualizar los resultados.
+Versión desplegada del sistema en: https://streamlit-bi.fly.dev/
 
-## Integrantes del Grupo C
-
+## Equipo: C-2023-1
+Docente Líder del Proyecto: Mg. Ing. Ernesto Cancho-Rodríguez, MBA de la George Washington University ecr@gwu.edu
 - Vasquez Palomino, Ashel Joseph
 - Gonza Soto, Raquel Stacy
 - Cardenas Ramirez, Jean Carlo
